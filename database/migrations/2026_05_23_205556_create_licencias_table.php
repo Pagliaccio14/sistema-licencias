@@ -22,7 +22,7 @@ public function up(): void
         $table->string('tipo_licencia');
         $table->date('fecha_expedicion');
         $table->date('fecha_vencimiento');
-        $table->string('tipo_sangre');
+        $table->string('tipo_sangre')->nullable();
         $table->timestamps();
         $table->string('foto')->nullable();
     });

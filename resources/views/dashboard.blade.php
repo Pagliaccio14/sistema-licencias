@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
     <title>Dashboard</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <style>
 
@@ -36,10 +39,16 @@
             padding:12px;
             border-radius:10px;
             margin-bottom:10px;
+            transition:0.3s;
         }
 
         .sidebar a:hover{
             background:#0d6efd;
+        }
+
+        .table img{
+            border-radius:50%;
+            object-fit:cover;
         }
 
     </style>
@@ -51,6 +60,8 @@
 <div class="container-fluid">
 
     <div class="row">
+
+        <!-- SIDEBAR -->
 
         <div class="col-md-2 sidebar">
 
@@ -70,15 +81,19 @@
 
         </div>
 
+        <!-- CONTENIDO -->
+
         <div class="col-md-10 p-4">
 
             <h1 class="mb-4">
                 Dashboard
             </h1>
 
+            <!-- CARDS -->
+
             <div class="row">
 
-                <div class="col-md-4">
+                <div class="col-md-4 mb-3">
 
                     <div class="card bg-primary text-white shadow p-4 card-dashboard">
 
@@ -90,7 +105,7 @@
 
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 mb-3">
 
                     <div class="card bg-success text-white shadow p-4 card-dashboard">
 
@@ -102,7 +117,7 @@
 
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-4 mb-3">
 
                     <div class="card bg-danger text-white shadow p-4 card-dashboard">
 
@@ -115,6 +130,20 @@
                 </div>
 
             </div>
+
+            <!-- GRAFICA -->
+
+            <div class="card shadow mt-4 p-4">
+
+                <h3 class="mb-4">
+                    Estadísticas de Licencias
+                </h3>
+
+                <div id="graficaLicencias"></div>
+
+            </div>
+
+            <!-- TABLA -->
 
             <div class="card shadow mt-5 p-4">
 
@@ -147,8 +176,7 @@
 
                                 <img src="{{ asset('fotos/'.$licencia->foto) }}"
                                      width="70"
-                                     height="70"
-                                     style="border-radius:50%; object-fit:cover;">
+                                     height="70">
 
                             </td>
 
@@ -186,6 +214,173 @@
     </div>
 
 </div>
+
+<!-- MODAL -->
+
+<div class="modal fade" id="modalGrafica" tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Información de Estadística
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body" id="contenidoModal">
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BOOTSTRAP -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- GRAFICA -->
+
+<script>
+
+    let categorias = [
+        'Total',
+        'Vigentes',
+        'Vencidas'
+    ];
+
+    let valores = [
+        {{ $total }},
+        {{ $vigentes }},
+        {{ $vencidas }}
+    ];
+
+    let options = {
+
+        chart: {
+
+            type: 'bar',
+            height: 400,
+
+            toolbar: {
+                show: true
+            },
+
+            animations: {
+                enabled: true
+            },
+
+            events: {
+
+                dataPointSelection: function(event, chartContext, config) {
+
+                    let categoria =
+                        categorias[config.dataPointIndex];
+
+                    let valor =
+                        valores[config.dataPointIndex];
+
+                    document.getElementById(
+                        'contenidoModal'
+                    ).innerHTML = `
+
+                        <div class="text-center">
+
+                            <h2>${categoria}</h2>
+
+                            <hr>
+
+                            <h1 class="display-1 text-primary">
+                                ${valor}
+                            </h1>
+
+                            <p class="mt-4">
+                                Estadísticas detalladas de
+                                <strong>${categoria}</strong>
+                            </p>
+
+                        </div>
+
+                    `;
+
+                    let modal = new bootstrap.Modal(
+                        document.getElementById('modalGrafica')
+                    );
+
+                    modal.show();
+
+                }
+
+            }
+
+        },
+
+        series: [{
+
+            name: 'Licencias',
+
+            data: valores
+
+        }],
+
+        xaxis: {
+
+            categories: categorias
+
+        },
+
+        colors: [
+            '#0d6efd',
+            '#198754',
+            '#dc3545'
+        ],
+
+        plotOptions: {
+
+            bar: {
+
+                borderRadius: 10,
+                distributed: true
+
+            }
+
+        },
+
+        dataLabels: {
+
+            enabled: true
+
+        }
+
+    };
+
+    let chart = new ApexCharts(
+        document.querySelector("#graficaLicencias"),
+        options
+    );
+
+    chart.render();
+
+    // ACTUALIZAR CADA 5 SEGUNDOS
+
+    setInterval(() => {
+
+        location.reload();
+
+    }, 5000);
+
+</script>
 
 </body>
 </html>

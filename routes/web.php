@@ -7,3 +7,4 @@ Route::get('/', [LicenciaController::class, 'dashboard'])
     ->name('dashboard');
 
 Route::resource('licencias', LicenciaController::class);
+Route::get('/estadisticas/licencias', [DashboardController::class, 'estadisticas']);
